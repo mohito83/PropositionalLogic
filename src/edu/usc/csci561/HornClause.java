@@ -51,4 +51,16 @@ public class HornClause {
 	public int noOfPremises() {
 		return body.size();
 	}
+
+	public List<String> getBody() {
+		return body;
+	}
+
+	public String getHead() {
+		return head;
+	}
+
+	public boolean contains(String p) {
+		return body.contains(p);
+	}
 }

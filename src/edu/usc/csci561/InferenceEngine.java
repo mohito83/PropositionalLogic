@@ -7,9 +7,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.usc.csci561.tasks.BCTask;
+import edu.usc.csci561.tasks.CNFResolutionTask;
+import edu.usc.csci561.tasks.FCTask;
 
 /**
  * @author mohit aggarwl
@@ -39,6 +44,36 @@ public class InferenceEngine {
 		parseKbInputFile();
 
 		parseQueryInputFile();
+
+		// start processing
+		try {
+			File logFile = new File(outputLog);
+			FileWriter logsWriter = new FileWriter(logFile);
+			File entailmentFile = new File(outputEntail);
+			FileWriter resultsWriter = new FileWriter(entailmentFile);
+
+			IEntailmentTask ieTask = null;
+			switch (task) {
+			case 1:
+				ieTask = new FCTask(logsWriter, resultsWriter);
+				break;
+			case 2:
+				ieTask = new BCTask(logsWriter, resultsWriter);
+				break;
+			case 3:
+				ieTask = new CNFResolutionTask(logsWriter, resultsWriter);
+				break;
+			}
+			ieTask.processEntailment(clauseList, queryList);
+
+			logsWriter.close();
+			resultsWriter.close();
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		} catch (Exception e1) {
+			System.out.println(e1.getMessage());
+		}
+
 	}
 
 	/**
