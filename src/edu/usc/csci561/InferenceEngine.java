@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +23,14 @@ public class InferenceEngine {
 	private static String outputEntail;
 	private static String outputLog;
 
-	private static List<String> queryList;
+	/**
+	 * List of symbols to be inferred from the KB
+	 */
+	private static List<String> queryList = new ArrayList<String>();
+	/**
+	 * List of horn clauses
+	 */
+	private static List<HornClause> clauseList = new ArrayList<HornClause>();
 
 	public static void main(String[] args) {
 
@@ -62,7 +70,40 @@ public class InferenceEngine {
 	}
 
 	private static void parseKbInputFile() {
-		// TODO Auto-generated method stub
+		File f = new File(kbInputFile);
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(f));
+			String str = null;
+			while ((str = reader.readLine()) != null) {
+				String[] arr = str.split(" :- ");
+				HornClause clause = new HornClause();
+				if (arr.length == 1) {
+					clause.addToBody(arr[0]);
+				} else if (arr.length > 1) {
+					clause.addHead(arr[0]);
+					String[] symbols = arr[1].split(",");
+					for (String s : symbols) {
+						clause.addToBody(s);
+					}
+				}
+				clauseList.add(clause);
+			}
+		} catch (IOException e) {
+			System.out
+					.println("Exception occurred while parsing the Map file- "
+							+ e.getMessage());
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					System.out
+							.println("Exception occurred while closing the Map file- "
+									+ e.getMessage());
+				}
+			}
+		}
 
 	}
 
