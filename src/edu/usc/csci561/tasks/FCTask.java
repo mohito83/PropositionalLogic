@@ -4,6 +4,8 @@
 package edu.usc.csci561.tasks;
 
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +50,14 @@ public class FCTask extends IEntailmentTask {
 		Map<HornClause, Integer> count = new HashMap<HornClause, Integer>();
 		Map<String, Boolean> inferred = new HashMap<String, Boolean>();
 		Stack<String> agenda = new Stack<String>();
-		initLocalVars(clauses, count, inferred, agenda);
+		List<String> known = new ArrayList<String>();
+		initLocalVars(clauses, count, inferred, known);
+
+		// populate the agenda
+		Iterator<String> iterator = known.iterator();
+		while (iterator.hasNext()) {
+			agenda.push(iterator.next());
+		}
 
 		while (!agenda.isEmpty()) {
 			String p = agenda.pop();
@@ -64,6 +73,9 @@ public class FCTask extends IEntailmentTask {
 						if (v > 0) {
 							count.put(c, v);
 						} else {
+							// print the logs
+							generateLog(known, c);
+							known.add(c.getHead());
 							if (c.getHead().equals(q)) {
 								return true;
 							} else {
@@ -79,14 +91,33 @@ public class FCTask extends IEntailmentTask {
 		return isEntails;
 	}
 
+	private void generateLog(List<String> known, HornClause c) {
+		Collections.sort(known);
+		StringBuffer buff = new StringBuffer();
+		int i = 0;
+		for (String s : known) {
+			i++;
+			buff.append(s);
+			if (i < known.size()) {
+				buff.append(", ");
+			}
+		}
+		buff.append("#");
+		buff.append(c.getClauseInfo());
+		buff.append(" # ");
+		buff.append(c.getHead());
+		buff.append(System.getProperty("line.separator"));
+		printLog(buff.toString());
+	}
+
 	private void initLocalVars(List<HornClause> clauses,
 			Map<HornClause, Integer> count, Map<String, Boolean> inferred,
-			Stack<String> agenda) {
+			List<String> known) {
 		Iterator<HornClause> iter = clauses.iterator();
 		while (iter.hasNext()) {
 			HornClause c = iter.next();
 			if (c.noOfPremises() == 1 && c.getHead() == null) {
-				agenda.push(c.getBody().get(0));
+				known.add(c.getBody().get(0));
 			} else {
 				count.put(c, c.noOfPremises());
 				List<String> premises = c.getBody();
