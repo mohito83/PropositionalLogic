@@ -85,7 +85,7 @@ public class FCTask extends IEntailmentTask {
 		Iterator<HornClause> iter = clauses.iterator();
 		while (iter.hasNext()) {
 			HornClause c = iter.next();
-			if (c.noOfPremises() == 1) {
+			if (c.noOfPremises() == 1 && c.getHead() == null) {
 				agenda.push(c.getBody().get(0));
 			} else {
 				count.put(c, c.noOfPremises());
