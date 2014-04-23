@@ -18,6 +18,7 @@ import edu.usc.csci561.IEntailmentTask;
  */
 public class BCTask extends IEntailmentTask {
 
+
 	public BCTask(FileWriter logsWriter, FileWriter resultsWriter) {
 		super(logsWriter, resultsWriter);
 	}
@@ -63,34 +64,40 @@ public class BCTask extends IEntailmentTask {
 				continue;
 			}
 
-			List<HornClause> matchingCaluseList = getClauseforHead(clauses, p);
-			if (matchingCaluseList.size() == 0) {
+			List<HornClause> matchingClauseList = getClausesforHead(clauses, p);
+
+			if (matchingClauseList.size() == 0) {
 				buff.append(p);
 				buff.append(" # N/A # N/A");
 				buff.append(System.getProperty("line.separator"));
 				printLog(buff.toString());
 				result = false;
 			} else {
-				for (HornClause c : matchingCaluseList) {
+				 for (int k = matchingClauseList.size() - 1; k >= 0; k--) {
+				 HornClause c = matchingClauseList.get(k);
+				//for (HornClause c : matchingClauseList) {
+					buff = new StringBuffer();
 					if (c.getHead() != null) {
 						List<String> body = c.getBody();
 						for (int i = body.size() - 1; i >= 0; i--) {
 							agenda.push(body.get(i));
 						}
+						 //if (k == 0) {
 						buff.append(p);
 						buff.append(" # ");
 						buff.append(c.getClauseInfo());
 						buff.append(" # ");
-						int i = 0;
+						int j = 0;
 						for (String s : body) {
-							i++;
+							j++;
 							buff.append(s);
-							if (i < body.size()) {
+							if (j < body.size()) {
 								buff.append(", ");
 							}
 						}
 						buff.append(System.getProperty("line.separator"));
 						printLog(buff.toString());
+						 //}
 					} else {
 						buff.append(p);
 						buff.append(" # ");
@@ -108,7 +115,8 @@ public class BCTask extends IEntailmentTask {
 		return result;
 	}
 
-	private List<HornClause> getClauseforHead(List<HornClause> clauses, String q) {
+	private List<HornClause> getClausesforHead(List<HornClause> clauses,
+			String q) {
 		List<HornClause> c = new ArrayList<HornClause>();
 		Iterator<HornClause> iter = clauses.iterator();
 		while (iter.hasNext()) {
