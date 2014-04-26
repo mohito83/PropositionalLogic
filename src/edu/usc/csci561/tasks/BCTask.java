@@ -27,8 +27,18 @@ public class BCTask extends IEntailmentTask {
 		printLog("<Queue of Goals>#Relevant Rules/Fact#New Goal Introduced");
 		printLog(System.getProperty("line.separator"));
 		for (String q : query) {
-			boolean result = plBCEntailment(clauses, q, null);
-			buff.append(result ? "YES" : "NO");
+			StringBuffer b = new StringBuffer();
+			// boolean result =
+			plBCEntailment(clauses, q, null, b);
+			String str = b.toString();
+			if (str.lastIndexOf("N/A # N/A") > 0
+					&& (str.length() - str.lastIndexOf("N/A # N/A") == "N/A # N/A"
+							.length())) {
+				buff.append("NO");
+			} else {
+				buff.append("YES");
+			}
+			// buff.append(result ? "YES" : "NO");
 			buff.append(System.getProperty("line.separator"));
 
 			// for the output log files
@@ -42,10 +52,12 @@ public class BCTask extends IEntailmentTask {
 	 * 
 	 * @param clauses
 	 * @param q
+	 * @param b
 	 * @return
+	 * 
 	 */
 	private boolean plBCEntailment(List<HornClause> clauses, String original,
-			String q) {
+			String q, StringBuffer b) {
 		if (q == null) {
 			q = original;
 		} else {
@@ -59,12 +71,13 @@ public class BCTask extends IEntailmentTask {
 			}
 		}
 
-		boolean result = false;
+		boolean result = true;
 		List<HornClause> matchingClauses = getClausesforHead(clauses, q);
 		if (matchingClauses.size() == 0) {
 			StringBuffer buff = new StringBuffer();
 			buff.append(q);
 			buff.append(" # N/A # N/A");
+			b.append(buff.toString());
 			buff.append(System.getProperty("line.separator"));
 			printLog(buff.toString());
 			return false;
@@ -79,8 +92,9 @@ public class BCTask extends IEntailmentTask {
 				buff.append(pList.get(0));
 				buff.append(" # N/A");
 				buff.append(System.getProperty("line.separator"));
+				b.append(buff.toString());
 				printLog(buff.toString());
-				result = result | true;
+				result = result & true;
 			} else {
 				StringBuffer buff = new StringBuffer();
 				buff.append(q);
@@ -96,13 +110,13 @@ public class BCTask extends IEntailmentTask {
 					}
 				}
 				buff.append(System.getProperty("line.separator"));
+				b.append(buff.toString());
 				printLog(buff.toString());
 				for (String s : pList) {
-					boolean x = plBCEntailment(clauses, original, s);
+					boolean x = plBCEntailment(clauses, original, s, b);
+					result = result & x;
 					if (!x) {
 						break;
-					}else{
-						result = result | x;
 					}
 				}
 			}
@@ -131,35 +145,6 @@ public class BCTask extends IEntailmentTask {
 		}
 
 		return c;
-	}
-
-}
-
-class HornClauseWrapper {
-	private HornClause clause;
-	private String premise;
-
-	public HornClauseWrapper() {
-		super();
-	}
-
-	public HornClauseWrapper(HornClause c, String p) {
-		this.clause = c;
-		this.premise = p;
-	}
-
-	/**
-	 * @return the clause
-	 */
-	public HornClause getClause() {
-		return clause;
-	}
-
-	/**
-	 * @return the premise
-	 */
-	public String getPremise() {
-		return premise;
 	}
 
 }
