@@ -36,6 +36,10 @@ public class CNFSentence {
 		this.symbols = symbols;
 	}
 
+	public void addSymbol(Symbol s) {
+		this.symbols.add(s);
+	}
+
 	/**
 	 * @return the operator
 	 */
