@@ -28,7 +28,6 @@ public class BCTask extends IEntailmentTask {
 		printLog(System.getProperty("line.separator"));
 		for (String q : query) {
 			StringBuffer b = new StringBuffer();
-			// boolean result =
 			plBCEntailment(clauses, q, null, b);
 			String str = b.toString();
 			if (str.lastIndexOf("N/A # N/A") > 0
@@ -38,7 +37,6 @@ public class BCTask extends IEntailmentTask {
 			} else {
 				buff.append("YES");
 			}
-			// buff.append(result ? "YES" : "NO");
 			buff.append(System.getProperty("line.separator"));
 
 			// for the output log files
