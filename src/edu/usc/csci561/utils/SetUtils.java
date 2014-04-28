@@ -12,7 +12,7 @@ import java.util.Set;
  * @author mohit aggarwl
  * 
  */
-public class SetUtils {
+public class SetUtils<T> {
 	/**
 	 * Performs s1 U s2 operations
 	 * 

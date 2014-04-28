@@ -3,6 +3,7 @@
  */
 package edu.usc.csci561.data;
 
+
 /**
  * This class defines the Symbol to be used in the CNF sentences
  * 
@@ -49,4 +50,28 @@ public class Symbol {
 		this.isPositive = isPositive;
 	}
 
+	public String toString() {
+		return isPositive ? value : "-" + value;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (this == o) {
+			return true;
+		}
+		if ((o == null) || (this.getClass() != o.getClass())) {
+			return false;
+		}
+		Symbol sym = (Symbol) o;
+		return (sym.getValue().equals(getValue()));
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 17;
+		result = 37 * result + value.hashCode();
+		return result;
+	}
 }

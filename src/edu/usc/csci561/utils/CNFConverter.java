@@ -3,9 +3,10 @@
  */
 package edu.usc.csci561.utils;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.usc.csci561.HornClause;
 import edu.usc.csci561.data.CNFSentence;
@@ -18,7 +19,7 @@ import edu.usc.csci561.data.Symbol;
  * @author mohit aggarwl
  * 
  */
-public class CNFCoverter {
+public class CNFConverter {
 
 	/**
 	 * This method returns the CNF sentence for the given HornClause sentences
@@ -26,8 +27,8 @@ public class CNFCoverter {
 	 * @param clauses
 	 * @return
 	 */
-	public static List<CNFSentence> convertToCNF(List<HornClause> clauses) {
-		List<CNFSentence> cnfSentences = new ArrayList<CNFSentence>();
+	public static Set<CNFSentence> convertToCNF(List<HornClause> clauses) {
+		Set<CNFSentence> cnfSentences = new LinkedHashSet<CNFSentence>();
 		Iterator<HornClause> iter = clauses.iterator();
 		while (iter.hasNext()) {
 			HornClause c = iter.next();
