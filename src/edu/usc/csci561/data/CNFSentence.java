@@ -17,10 +17,12 @@ import java.util.Set;
  */
 public class CNFSentence {
 	private Set<Symbol> symbols;
-	private String operator;
+	private boolean isValid;
+	
 
 	public CNFSentence() {
 		symbols = new LinkedHashSet<Symbol>();
+		isValid = true;
 	}
 
 	/**
@@ -38,57 +40,66 @@ public class CNFSentence {
 		this.symbols = symbols;
 	}
 
-	public void addSymbol(Symbol s) {
-		this.symbols.add(s);
+	public boolean addSymbol(Symbol s) {
+		return this.symbols.add(s);
 	}
 
-	/**
-	 * @return the operator
-	 */
-	public String getOperator() {
-		return operator;
-	}
-
-	/**
-	 * @param operator
-	 *            the operator to set
-	 */
-	public void setOperator(String operator) {
-		this.operator = operator;
-	}
-	
-	public Set<Symbol> getPositiveSymbols(){
+	public Set<Symbol> getPositiveSymbols() {
 		Set<Symbol> result = new HashSet<Symbol>();
 		Iterator<Symbol> iter = symbols.iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			Symbol s = iter.next();
-			if(s.isPositive()){
+			if (s.isPositive()) {
 				result.add(s);
 			}
 		}
 		return result;
 	}
-	
-	public Set<Symbol> getNegativeSymbols(){
+
+	public Set<Symbol> getNegativeSymbols() {
 		Set<Symbol> result = new HashSet<Symbol>();
 		Iterator<Symbol> iter = symbols.iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			Symbol s = iter.next();
-			if(!s.isPositive()){
+			if (!s.isPositive()) {
 				result.add(s);
 			}
 		}
 		return result;
 	}
-	
-	public boolean isSame(CNFSentence o){
-		LinkedHashSet<Symbol> a = new LinkedHashSet<Symbol>(getPositiveSymbols());
+
+	public boolean isSame(CNFSentence o) {
+		LinkedHashSet<Symbol> a = new LinkedHashSet<Symbol>(
+				getPositiveSymbols());
 		a.retainAll(o.getNegativeSymbols());
-		LinkedHashSet<Symbol> b = new LinkedHashSet<Symbol>(getNegativeSymbols());
+		LinkedHashSet<Symbol> b = new LinkedHashSet<Symbol>(
+				getNegativeSymbols());
 		b.retainAll(o.getPositiveSymbols());
 		LinkedHashSet<Symbol> c = new LinkedHashSet<Symbol>(a);
 		c.addAll(b);
 		return c.size() == 0;
+	}
+
+	public boolean contains(Symbol s) {
+		return this.symbols.contains(s);
+	}
+
+	public void removeAll() {
+		this.symbols.clear();
+	}
+
+	/**
+	 * @return the isValid
+	 */
+	public boolean isValid() {
+		return isValid;
+	}
+
+	/**
+	 * @param isValid the isValid to set
+	 */
+	public void setValid(boolean isValid) {
+		this.isValid = isValid;
 	}
 
 }

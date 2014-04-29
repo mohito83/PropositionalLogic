@@ -5,6 +5,8 @@ package edu.usc.csci561.tasks;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -58,32 +60,67 @@ public class CNFResolutionTask extends IEntailmentTask {
 	 * @return
 	 */
 	private boolean plResolution(Set<CNFSentence> kb) {
-		Set<CNFSentence> clauses = filterOutClausesWithTwoComplementaryLiterals(kb);
+		//Set<CNFSentence> clauses = filterOutClausesWithTwoComplementaryLiterals(kb);
 		Set<CNFSentence> newClauses = new LinkedHashSet<CNFSentence>();
 		int k = 1;
 		while (true) {
 			printLog("ITERATION = " + k);
 			printLog(System.getProperty("line.separator"));
-			List<List<CNFSentence>> pairs = getCombinationPairs(new ArrayList<CNFSentence>(
-					clauses));
+			List<List<CNFSentence>> pairs = getCombinationPairs(new ArrayList<CNFSentence>(kb));
+					//clauses));
 
 			for (int i = 0; i < pairs.size(); i++) {
 				List<CNFSentence> pair = pairs.get(i);
 				Set<CNFSentence> resolvents = plResolve(pair.get(0),
 						pair.get(1));
-				resolvents = filterOutClausesWithTwoComplementaryLiterals(resolvents);
+				//resolvents = filterOutClausesWithTwoComplementaryLiterals(resolvents);
+				
+				
+
+				// generate print logs
+				StringBuffer buff = new StringBuffer();
+				int j = 1;
+				for (Symbol s : pair.get(0).getSymbols()) {
+					buff.append(s);
+					if (j < pair.get(0).getSymbols().size())
+						buff.append(" OR ");
+					j++;
+				}
+				buff.append(" # ");
+				j = 1;
+				for (Symbol s : pair.get(1).getSymbols()) {
+					buff.append(s);
+					if (j < pair.get(1).getSymbols().size())
+						buff.append(" OR ");
+					j++;
+				}
+				buff.append(" # ");
+				j = 1;
+				Iterator<CNFSentence> iter1 = resolvents.iterator();
+				if (iter1.hasNext()) {
+					CNFSentence sentence3 = iter1.next();
+					for (Symbol s : sentence3.getSymbols()) {
+						buff.append(s);
+						if (j < sentence3.getSymbols().size())
+							buff.append(" OR ");
+						j++;
+					}
+				}
+				buff.append(System.getProperty("line.separator"));
+				printLog(buff.toString());
 
 				if (resolvents.contains(new Symbol("EMPTY_CLAUSE", true))) {
 					return true;
 				}
 				newClauses = SetUtils.union(newClauses, resolvents);
 			}
-			if (SetUtils.intersection(newClauses, clauses).size() == newClauses
+			if (SetUtils.intersection(newClauses, kb/*clauses*/).size() == newClauses
 					.size()) {// subset test
 				return false;
 			}
-			clauses = SetUtils.union(newClauses, clauses);
-			clauses = filterOutClausesWithTwoComplementaryLiterals(clauses);
+			//clauses = SetUtils.union(clauses, newClauses);
+			kb = SetUtils.union(kb, newClauses);
+			//clauses = filterOutClausesWithTwoComplementaryLiterals(clauses);
 			k++;
 		}
 	}
@@ -104,36 +141,6 @@ public class CNFResolutionTask extends IEntailmentTask {
 			resolvents.add(createResolventClause(cs, symbol));
 		}
 
-		// generate print logs
-		StringBuffer buff = new StringBuffer();
-		int i = 1;
-		for (Symbol s : sentence1.getSymbols()) {
-			buff.append(s);
-			if (i < sentence1.getSymbols().size())
-				buff.append(" OR ");
-			i++;
-		}
-		buff.append(" # ");
-		i = 1;
-		for (Symbol s : sentence2.getSymbols()) {
-			buff.append(s);
-			if (i < sentence2.getSymbols().size())
-				buff.append(" OR ");
-			i++;
-		}
-		buff.append(" # ");
-		i = 1;
-		Iterator<CNFSentence> iter1 = resolvents.iterator();
-		if (iter1.hasNext()) {
-			for (Symbol s : iter1.next().getSymbols()) {
-				buff.append(s);
-				if (i < sentence2.getSymbols().size())
-					buff.append(" OR ");
-				i++;
-			}
-		}
-		buff.append(System.getProperty("line.separator"));
-		printLog(buff.toString());
 		return resolvents;
 	}
 
@@ -158,7 +165,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 	}
 
 	private CNFSentence createResolventClause(ClauseSymbols cs, Symbol toRemove) {
-		/*List<Symbol> positiveSymbols = new ArrayList<Symbol>(SetUtils.union(
+		List<Symbol> positiveSymbols = new ArrayList<Symbol>(SetUtils.union(
 				cs.getClause1PositiveSymbols(), cs.getClause2PositiveSymbols()));
 		List<Symbol> negativeSymbols = new ArrayList<Symbol>(SetUtils.union(
 				cs.getClause1NegativeSymbols(), cs.getClause2NegativeSymbols()));
@@ -167,38 +174,43 @@ public class CNFResolutionTask extends IEntailmentTask {
 		}
 		if (negativeSymbols.contains(toRemove)) {
 			negativeSymbols.remove(toRemove);
-		}*/
-		List<Symbol> clause1Symbols = new ArrayList<Symbol>(cs.getClause1Symbols());
-		List<Symbol> clause2Symbols = new ArrayList<Symbol>(cs.getClause2Symbols());
-		
-		clause1Symbols.remove(toRemove);
-		clause2Symbols.remove(toRemove);
-
+		}
 		/*
-		 * Collections.sort(positiveSymbols, new SymbolComparator());
-		 * Collections.sort(negativeSymbols, new SymbolComparator());
+		 * List<Symbol> clause1Symbols = new
+		 * ArrayList<Symbol>(cs.getClause1Symbols()); List<Symbol>
+		 * clause2Symbols = new ArrayList<Symbol>(cs.getClause2Symbols());
+		 * 
+		 * clause1Symbols.remove(toRemove); clause2Symbols.remove(toRemove);
 		 */
 
+		Collections.sort(positiveSymbols, new SymbolComparator());
+		Collections.sort(negativeSymbols, new SymbolComparator());
+
 		List<Symbol> sentences = new ArrayList<Symbol>();
-		/*for (int i = 0; i < positiveSymbols.size(); i++) {
+		for (int i = 0; i < positiveSymbols.size(); i++) {
 			sentences.add(positiveSymbols.get(i));
 		}
 		for (int i = 0; i < negativeSymbols.size(); i++) {
 			sentences.add(negativeSymbols.get(i));
-		}*/
-		for (int i = 0; i < clause1Symbols.size(); i++) {
-			sentences.add(clause1Symbols.get(i));
 		}
-		for (int i = 0; i < clause2Symbols.size(); i++) {
-			sentences.add(clause2Symbols.get(i));
-		}
+		/*
+		 * for (int i = 0; i < clause1Symbols.size(); i++) {
+		 * sentences.add(clause1Symbols.get(i)); } for (int i = 0; i <
+		 * clause2Symbols.size(); i++) { sentences.add(clause2Symbols.get(i)); }
+		 */
 		CNFSentence cnf = new CNFSentence();
 		if (sentences.size() == 0) {
 			cnf.addSymbol(new Symbol("EMPTY_CLAUSE", true));
 			return cnf; // == empty clause
 		} else {
 			for (Symbol s : sentences) {
-				cnf.addSymbol(s);
+				if (!cnf.contains(s)) {
+					cnf.addSymbol(s);
+				} else {
+					cnf.removeAll();
+					cnf.setValid(false);
+					return cnf;
+				}
 			}
 			return cnf;
 		}
@@ -218,6 +230,16 @@ public class CNFResolutionTask extends IEntailmentTask {
 			}
 		}
 		return filtered;
+	}
+
+}
+
+class SymbolComparator implements Comparator<Symbol> {
+
+	public int compare(Symbol symbol1, Symbol symbol2) {
+		Symbol one = symbol1;
+		Symbol two = symbol2;
+		return one.getValue().compareTo(two.getValue());
 	}
 
 }

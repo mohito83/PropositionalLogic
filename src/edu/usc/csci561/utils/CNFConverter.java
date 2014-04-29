@@ -3,6 +3,7 @@
  */
 package edu.usc.csci561.utils;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ public class CNFConverter {
 			} else {
 				Symbol s = new Symbol(c.getHead(), true);
 				cnf.addSymbol(s);
+				Collections.sort(c.getBody());
 				for (String x : c.getBody()) {
 					s = new Symbol(x, false);
 					cnf.addSymbol(s);
