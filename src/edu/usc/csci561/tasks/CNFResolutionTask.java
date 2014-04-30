@@ -6,7 +6,6 @@ package edu.usc.csci561.tasks;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -20,6 +19,7 @@ import edu.usc.csci561.data.Symbol;
 import edu.usc.csci561.utils.CNFConverter;
 import edu.usc.csci561.utils.ClauseSymbols;
 import edu.usc.csci561.utils.SetUtils;
+import edu.usc.csci561.utils.SymbolComparator;
 
 /**
  * @author mohit aggarwl
@@ -60,67 +60,69 @@ public class CNFResolutionTask extends IEntailmentTask {
 	 * @return
 	 */
 	private boolean plResolution(Set<CNFSentence> kb) {
-		//Set<CNFSentence> clauses = filterOutClausesWithTwoComplementaryLiterals(kb);
+		// Set<CNFSentence> clauses =
+		// filterOutClausesWithTwoComplementaryLiterals(kb);
 		Set<CNFSentence> newClauses = new LinkedHashSet<CNFSentence>();
 		int k = 1;
 		while (true) {
 			printLog("ITERATION = " + k);
 			printLog(System.getProperty("line.separator"));
-			List<List<CNFSentence>> pairs = getCombinationPairs(new ArrayList<CNFSentence>(kb));
-					//clauses));
+			List<List<CNFSentence>> pairs = getCombinationPairs(new ArrayList<CNFSentence>(
+					kb));
+			// clauses));
 
 			for (int i = 0; i < pairs.size(); i++) {
 				List<CNFSentence> pair = pairs.get(i);
 				Set<CNFSentence> resolvents = plResolve(pair.get(0),
 						pair.get(1));
-				//resolvents = filterOutClausesWithTwoComplementaryLiterals(resolvents);
-				
-				
+				resolvents = filterOutClausesWithTwoComplementaryLiterals(resolvents);
 
-				// generate print logs
-				StringBuffer buff = new StringBuffer();
-				int j = 1;
-				for (Symbol s : pair.get(0).getSymbols()) {
-					buff.append(s);
-					if (j < pair.get(0).getSymbols().size())
-						buff.append(" OR ");
-					j++;
-				}
-				buff.append(" # ");
-				j = 1;
-				for (Symbol s : pair.get(1).getSymbols()) {
-					buff.append(s);
-					if (j < pair.get(1).getSymbols().size())
-						buff.append(" OR ");
-					j++;
-				}
-				buff.append(" # ");
-				j = 1;
-				Iterator<CNFSentence> iter1 = resolvents.iterator();
-				if (iter1.hasNext()) {
-					CNFSentence sentence3 = iter1.next();
-					for (Symbol s : sentence3.getSymbols()) {
+				if (!resolvents.isEmpty()) {
+					// generate print logs
+					StringBuffer buff = new StringBuffer();
+					int j = 1;
+					for (Symbol s : pair.get(0).getSymbols()) {
 						buff.append(s);
-						if (j < sentence3.getSymbols().size())
+						if (j < pair.get(0).getSymbols().size())
 							buff.append(" OR ");
 						j++;
 					}
-				}
-				buff.append(System.getProperty("line.separator"));
-				printLog(buff.toString());
+					buff.append(" # ");
+					j = 1;
+					for (Symbol s : pair.get(1).getSymbols()) {
+						buff.append(s);
+						if (j < pair.get(1).getSymbols().size())
+							buff.append(" OR ");
+						j++;
+					}
+					buff.append(" # ");
+					j = 1;
+					Iterator<CNFSentence> iter1 = resolvents.iterator();
+					if (iter1.hasNext()) {
+						CNFSentence sentence3 = iter1.next();
+						for (Symbol s : sentence3.getSymbols()) {
+							buff.append(s);
+							if (j < sentence3.getSymbols().size())
+								buff.append(" OR ");
+							j++;
+						}
+					}
+					buff.append(System.getProperty("line.separator"));
+					printLog(buff.toString());
 
-				if (resolvents.contains(new Symbol("EMPTY_CLAUSE", true))) {
-					return true;
+					if (resolvents.contains(new Symbol("EMPTY_CLAUSE", true))) {
+						return true;
+					}
+					newClauses = SetUtils.union(newClauses, resolvents);
 				}
-				newClauses = SetUtils.union(newClauses, resolvents);
 			}
-			if (SetUtils.intersection(newClauses, kb/*clauses*/).size() == newClauses
+			if (SetUtils.intersection(newClauses, kb/* clauses */).size() == newClauses
 					.size()) {// subset test
 				return false;
 			}
-			//clauses = SetUtils.union(clauses, newClauses);
+			// clauses = SetUtils.union(clauses, newClauses);
 			kb = SetUtils.union(kb, newClauses);
-			//clauses = filterOutClausesWithTwoComplementaryLiterals(clauses);
+			// clauses = filterOutClausesWithTwoComplementaryLiterals(clauses);
 			k++;
 		}
 	}
@@ -175,13 +177,6 @@ public class CNFResolutionTask extends IEntailmentTask {
 		if (negativeSymbols.contains(toRemove)) {
 			negativeSymbols.remove(toRemove);
 		}
-		/*
-		 * List<Symbol> clause1Symbols = new
-		 * ArrayList<Symbol>(cs.getClause1Symbols()); List<Symbol>
-		 * clause2Symbols = new ArrayList<Symbol>(cs.getClause2Symbols());
-		 * 
-		 * clause1Symbols.remove(toRemove); clause2Symbols.remove(toRemove);
-		 */
 
 		Collections.sort(positiveSymbols, new SymbolComparator());
 		Collections.sort(negativeSymbols, new SymbolComparator());
@@ -193,11 +188,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 		for (int i = 0; i < negativeSymbols.size(); i++) {
 			sentences.add(negativeSymbols.get(i));
 		}
-		/*
-		 * for (int i = 0; i < clause1Symbols.size(); i++) {
-		 * sentences.add(clause1Symbols.get(i)); } for (int i = 0; i <
-		 * clause2Symbols.size(); i++) { sentences.add(clause2Symbols.get(i)); }
-		 */
+
 		CNFSentence cnf = new CNFSentence();
 		if (sentences.size() == 0) {
 			cnf.addSymbol(new Symbol("EMPTY_CLAUSE", true));
@@ -223,23 +214,11 @@ public class CNFResolutionTask extends IEntailmentTask {
 		Iterator<CNFSentence> iter = clauses.iterator();
 		while (iter.hasNext()) {
 			CNFSentence clause = iter.next();
-			Set<Symbol> positiveSymbols = clause.getPositiveSymbols();
-			Set<Symbol> negativeSymbols = clause.getNegativeSymbols();
-			if ((SetUtils.intersection(positiveSymbols, negativeSymbols).size() == 0)) {
+			if (clause.isValid()) {
 				filtered.add(clause);
 			}
 		}
 		return filtered;
-	}
-
-}
-
-class SymbolComparator implements Comparator<Symbol> {
-
-	public int compare(Symbol symbol1, Symbol symbol2) {
-		Symbol one = symbol1;
-		Symbol two = symbol2;
-		return one.getValue().compareTo(two.getValue());
 	}
 
 }

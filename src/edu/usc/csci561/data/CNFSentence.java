@@ -3,10 +3,15 @@
  */
 package edu.usc.csci561.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+
+import edu.usc.csci561.utils.SymbolComparator;
 
 /**
  * This class represents the Conjunctive Normal Form of Propositional Logic
@@ -18,7 +23,6 @@ import java.util.Set;
 public class CNFSentence {
 	private Set<Symbol> symbols;
 	private boolean isValid;
-	
 
 	public CNFSentence() {
 		symbols = new LinkedHashSet<Symbol>();
@@ -96,10 +100,45 @@ public class CNFSentence {
 	}
 
 	/**
-	 * @param isValid the isValid to set
+	 * @param isValid
+	 *            the isValid to set
 	 */
 	public void setValid(boolean isValid) {
 		this.isValid = isValid;
 	}
 
+	public boolean equals(Object o) {
+		CNFSentence cnf = (CNFSentence) o;
+		List<Symbol> symbolList1 = new ArrayList<Symbol>(this.getSymbols());
+		List<Symbol> symbolList2 = new ArrayList<Symbol>(cnf.getSymbols());
+		if (symbolList1.size() != symbolList2.size()) {
+			return false;
+		} else {
+			Collections.sort(symbolList1, new SymbolComparator());
+			Collections.sort(symbolList2, new SymbolComparator());
+
+			for (int i = 0; i < symbolList1.size(); i++) {
+				Symbol s1 = symbolList1.get(i);
+				Symbol s2 = symbolList2.get(i);
+				if (!s1.getValue().equals(s2.getValue())) {
+					return false;
+				} else {
+					if (s1.isPositive() != s2.isPositive()) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public int hashCode() {
+		int result = 17;
+		Iterator<Symbol> iter = this.symbols.iterator();
+		while(iter.hasNext()){
+			Symbol s= iter.next();
+			result = 37 * result + s.getValue().hashCode();
+		}
+		return result;
+	}
 }
