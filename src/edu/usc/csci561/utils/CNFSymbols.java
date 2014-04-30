@@ -12,7 +12,7 @@ import edu.usc.csci561.data.Symbol;
  * @author mohit aggarwl
  *
  */
-public class ClauseSymbols {
+public class CNFSymbols {
 	Set<Symbol> clause1Symbols, clause1PositiveSymbols,
 			clause1NegativeSymbols;
 
@@ -22,7 +22,7 @@ public class ClauseSymbols {
 	Set<Symbol> positiveInClause1NegativeInClause2,
 			negativeInClause1PositiveInClause2;
 
-	public ClauseSymbols(CNFSentence clause1, CNFSentence clause2) {
+	public CNFSymbols(CNFSentence clause1, CNFSentence clause2) {
 
 		clause1Symbols = clause1.getSymbols();
 		clause1PositiveSymbols = clause1.getPositiveSymbols();
@@ -32,15 +32,15 @@ public class ClauseSymbols {
 		clause2PositiveSymbols = clause2.getPositiveSymbols();
 		clause2NegativeSymbols = clause2.getNegativeSymbols();
 
-		positiveInClause1NegativeInClause2 = SetUtils.intersection(
+		positiveInClause1NegativeInClause2 = CartesianSetUtils.intersection(
 				clause1PositiveSymbols, clause2NegativeSymbols);
-		negativeInClause1PositiveInClause2 = SetUtils.intersection(
+		negativeInClause1PositiveInClause2 = CartesianSetUtils.intersection(
 				clause1NegativeSymbols, clause2PositiveSymbols);
 
 	}
 
 	public Set<Symbol> getComplementedSymbols() {
-		return SetUtils.union(positiveInClause1NegativeInClause2,
+		return CartesianSetUtils.union(positiveInClause1NegativeInClause2,
 				negativeInClause1PositiveInClause2);
 	}
 

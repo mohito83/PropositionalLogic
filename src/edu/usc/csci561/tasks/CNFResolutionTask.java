@@ -17,16 +17,22 @@ import edu.usc.csci561.IEntailmentTask;
 import edu.usc.csci561.data.CNFSentence;
 import edu.usc.csci561.data.Symbol;
 import edu.usc.csci561.utils.CNFConverter;
-import edu.usc.csci561.utils.ClauseSymbols;
-import edu.usc.csci561.utils.SetUtils;
-import edu.usc.csci561.utils.SymbolComparator;
+import edu.usc.csci561.utils.CNFSymbols;
+import edu.usc.csci561.utils.CartesianSetUtils;
+import edu.usc.csci561.utils.CNFSymbolComparator;
 
 /**
  * @author mohit aggarwl
  * 
+ *         Please Note:- In this class I have adapted some of the methods
+ *         mentioned in the following source code.
+ *         https://code.google.com/p/aima-java/source
+ *         /browse/trunk/src/aima/logic
+ *         /propositional/algorithms/PLResolution.java?r=193
+ * 
  */
 public class CNFResolutionTask extends IEntailmentTask {
-	
+
 	private static final String EMPTY_STRING = "Empty";
 
 	/**
@@ -45,11 +51,12 @@ public class CNFResolutionTask extends IEntailmentTask {
 		printLog(System.getProperty("line.separator"));
 		for (String q : query) {
 			Set<CNFSentence> kb = CNFConverter.convertToCNF(clauses);
+			// add the -q to the knowledge base
 			Symbol s = new Symbol(q, false);
 			CNFSentence sentence = new CNFSentence();
 			sentence.addSymbol(s);
 			kb.add(sentence);
-			boolean result = plResolution(kb);
+			boolean result = plCNFEntailment(kb);
 			buff.append(result ? "YES" : "NO");
 			buff.append(System.getProperty("line.separator"));
 
@@ -66,7 +73,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 	 * @param q
 	 * @return
 	 */
-	private boolean plResolution(Set<CNFSentence> kb) {
+	private boolean plCNFEntailment(Set<CNFSentence> kb) {
 		Set<CNFSentence> newClauses = new LinkedHashSet<CNFSentence>();
 		int k = 1;
 		while (true) {
@@ -79,7 +86,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 				List<CNFSentence> pair = pairs.get(i);
 				Set<CNFSentence> resolvents = plResolve(pair.get(0),
 						pair.get(1));
-				resolvents = filterOutClausesWithTwoComplementaryLiterals(resolvents);
+				resolvents = filterSentencesWithTwoComplementarySymbols(resolvents);
 
 				if (!resolvents.isEmpty()) {
 					// generate print logs
@@ -117,14 +124,15 @@ public class CNFResolutionTask extends IEntailmentTask {
 					if (isEmptyClause(resolvents)) {
 						return true;
 					}
-					newClauses = SetUtils.union(newClauses, resolvents);
+					newClauses = CartesianSetUtils
+							.union(newClauses, resolvents);
 				}
 			}
-			if (SetUtils.intersection(newClauses, kb).size() == newClauses
-					.size()) {// subset test
+			if (CartesianSetUtils.intersection(newClauses, kb).size() == newClauses
+					.size()) {
 				return false;
 			}
-			kb = SetUtils.union(kb, newClauses);
+			kb = CartesianSetUtils.union(kb, newClauses);
 			k++;
 		}
 	}
@@ -138,11 +146,11 @@ public class CNFResolutionTask extends IEntailmentTask {
 	private Set<CNFSentence> plResolve(CNFSentence sentence1,
 			CNFSentence sentence2) {
 		Set<CNFSentence> resolvents = new HashSet<CNFSentence>();
-		ClauseSymbols cs = new ClauseSymbols(sentence1, sentence2);
+		CNFSymbols cs = new CNFSymbols(sentence1, sentence2);
 		Iterator<Symbol> iter = cs.getComplementedSymbols().iterator();
 		while (iter.hasNext()) {
 			Symbol symbol = iter.next();
-			resolvents.add(createResolventClause(cs, symbol));
+			resolvents.add(createResolventSentence(cs, symbol));
 		}
 
 		return resolvents;
@@ -162,6 +170,8 @@ public class CNFResolutionTask extends IEntailmentTask {
 				CNFSentence first = clausesList.get(i);
 				CNFSentence second = clausesList.get(j);
 
+				// if the pairs have one or more symbols which are complementary
+				// then add them as pairs.
 				if (!first.isSame(second)) {
 					pair.add(first);
 					pair.add(second);
@@ -178,11 +188,13 @@ public class CNFResolutionTask extends IEntailmentTask {
 	 * @param toRemove
 	 * @return
 	 */
-	private CNFSentence createResolventClause(ClauseSymbols cs, Symbol toRemove) {
-		List<Symbol> positiveSymbols = new ArrayList<Symbol>(SetUtils.union(
-				cs.getClause1PositiveSymbols(), cs.getClause2PositiveSymbols()));
-		List<Symbol> negativeSymbols = new ArrayList<Symbol>(SetUtils.union(
-				cs.getClause1NegativeSymbols(), cs.getClause2NegativeSymbols()));
+	private CNFSentence createResolventSentence(CNFSymbols cs, Symbol toRemove) {
+		List<Symbol> positiveSymbols = new ArrayList<Symbol>(
+				CartesianSetUtils.union(cs.getClause1PositiveSymbols(),
+						cs.getClause2PositiveSymbols()));
+		List<Symbol> negativeSymbols = new ArrayList<Symbol>(
+				CartesianSetUtils.union(cs.getClause1NegativeSymbols(),
+						cs.getClause2NegativeSymbols()));
 		if (positiveSymbols.contains(toRemove)) {
 			positiveSymbols.remove(toRemove);
 		}
@@ -190,8 +202,8 @@ public class CNFResolutionTask extends IEntailmentTask {
 			negativeSymbols.remove(toRemove);
 		}
 
-		Collections.sort(positiveSymbols, new SymbolComparator());
-		Collections.sort(negativeSymbols, new SymbolComparator());
+		Collections.sort(positiveSymbols, new CNFSymbolComparator());
+		Collections.sort(negativeSymbols, new CNFSymbolComparator());
 
 		List<Symbol> sentences = new ArrayList<Symbol>();
 		for (int i = 0; i < positiveSymbols.size(); i++) {
@@ -204,7 +216,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 		CNFSentence cnf = new CNFSentence();
 		if (sentences.size() == 0) {
 			cnf.addSymbol(new Symbol(EMPTY_STRING, true));
-			return cnf; // == empty clause
+			return cnf;
 		} else {
 			for (Symbol s : sentences) {
 				if (!cnf.contains(s)) {
@@ -225,20 +237,21 @@ public class CNFResolutionTask extends IEntailmentTask {
 	 * @param clauses
 	 * @return
 	 */
-	private Set<CNFSentence> filterOutClausesWithTwoComplementaryLiterals(
+	private Set<CNFSentence> filterSentencesWithTwoComplementarySymbols(
 			Set<CNFSentence> clauses) {
-		Set<CNFSentence> filtered = new LinkedHashSet<CNFSentence>();
+		Set<CNFSentence> result = new LinkedHashSet<CNFSentence>();
 		Iterator<CNFSentence> iter = clauses.iterator();
 		while (iter.hasNext()) {
 			CNFSentence clause = iter.next();
 			if (clause.isValid()) {
-				filtered.add(clause);
+				result.add(clause);
 			}
 		}
-		return filtered;
+		return result;
 	}
 
 	/**
+	 * This method checks if there is an CNF Sentence with Empty symbol.
 	 * 
 	 * @param resolvents
 	 * @return

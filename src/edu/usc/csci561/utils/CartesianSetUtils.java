@@ -12,7 +12,7 @@ import java.util.Set;
  * @author mohit aggarwl
  * 
  */
-public class SetUtils<T> {
+public class CartesianSetUtils<T> {
 	/**
 	 * Performs s1 U s2 operations
 	 * 
@@ -27,7 +27,7 @@ public class SetUtils<T> {
 	}
 
 	/**
-	 * Performs s1
+	 * Performs s1 M s2 operation
 	 * 
 	 * @param s1
 	 * @param s2
@@ -40,7 +40,7 @@ public class SetUtils<T> {
 	}
 
 	/**
-	 * Performs s1- s2 operation on the sets
+	 * Performs s1 - s2 operation on the sets
 	 * 
 	 * @param s1
 	 * @param s2

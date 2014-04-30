@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.usc.csci561.utils.SymbolComparator;
+import edu.usc.csci561.utils.CNFSymbolComparator;
 
 /**
  * This class represents the Conjunctive Normal Form of Propositional Logic
@@ -44,10 +44,19 @@ public class CNFSentence {
 		this.symbols = symbols;
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
 	public boolean addSymbol(Symbol s) {
 		return this.symbols.add(s);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Set<Symbol> getPositiveSymbols() {
 		Set<Symbol> result = new HashSet<Symbol>();
 		Iterator<Symbol> iter = symbols.iterator();
@@ -60,6 +69,10 @@ public class CNFSentence {
 		return result;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Set<Symbol> getNegativeSymbols() {
 		Set<Symbol> result = new HashSet<Symbol>();
 		Iterator<Symbol> iter = symbols.iterator();
@@ -72,6 +85,11 @@ public class CNFSentence {
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param o
+	 * @return
+	 */
 	public boolean isSame(CNFSentence o) {
 		LinkedHashSet<Symbol> a = new LinkedHashSet<Symbol>(
 				getPositiveSymbols());
@@ -84,10 +102,18 @@ public class CNFSentence {
 		return c.size() == 0;
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
 	public boolean contains(Symbol s) {
 		return this.symbols.contains(s);
 	}
 
+	/**
+	 * 
+	 */
 	public void removeAll() {
 		this.symbols.clear();
 	}
@@ -107,6 +133,9 @@ public class CNFSentence {
 		this.isValid = isValid;
 	}
 
+	/**
+	 * 
+	 */
 	public boolean equals(Object o) {
 		CNFSentence cnf = (CNFSentence) o;
 		List<Symbol> symbolList1 = new ArrayList<Symbol>(this.getSymbols());
@@ -114,8 +143,8 @@ public class CNFSentence {
 		if (symbolList1.size() != symbolList2.size()) {
 			return false;
 		} else {
-			Collections.sort(symbolList1, new SymbolComparator());
-			Collections.sort(symbolList2, new SymbolComparator());
+			Collections.sort(symbolList1, new CNFSymbolComparator());
+			Collections.sort(symbolList2, new CNFSymbolComparator());
 
 			for (int i = 0; i < symbolList1.size(); i++) {
 				Symbol s1 = symbolList1.get(i);
@@ -132,6 +161,9 @@ public class CNFSentence {
 		return true;
 	}
 	
+	/**
+	 * 
+	 */
 	public int hashCode() {
 		int result = 17;
 		Iterator<Symbol> iter = this.symbols.iterator();

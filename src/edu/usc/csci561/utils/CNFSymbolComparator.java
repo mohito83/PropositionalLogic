@@ -11,7 +11,7 @@ import edu.usc.csci561.data.Symbol;
  * @author mohit aggarwl
  * 
  */
-public class SymbolComparator implements Comparator<Symbol> {
+public class CNFSymbolComparator implements Comparator<Symbol> {
 
 	public int compare(Symbol symbol1, Symbol symbol2) {
 		Symbol one = symbol1;
