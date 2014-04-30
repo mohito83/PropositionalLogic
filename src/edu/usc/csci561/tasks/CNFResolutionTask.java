@@ -26,6 +26,8 @@ import edu.usc.csci561.utils.SymbolComparator;
  * 
  */
 public class CNFResolutionTask extends IEntailmentTask {
+	
+	private static final String EMPTY_STRING = "Empty";
 
 	public CNFResolutionTask(FileWriter logsWriter, FileWriter resultsFileWriter) {
 		super(logsWriter, resultsFileWriter);
@@ -60,8 +62,6 @@ public class CNFResolutionTask extends IEntailmentTask {
 	 * @return
 	 */
 	private boolean plResolution(Set<CNFSentence> kb) {
-		// Set<CNFSentence> clauses =
-		// filterOutClausesWithTwoComplementaryLiterals(kb);
 		Set<CNFSentence> newClauses = new LinkedHashSet<CNFSentence>();
 		int k = 1;
 		while (true) {
@@ -69,7 +69,6 @@ public class CNFResolutionTask extends IEntailmentTask {
 			printLog(System.getProperty("line.separator"));
 			List<List<CNFSentence>> pairs = getCombinationPairs(new ArrayList<CNFSentence>(
 					kb));
-			// clauses));
 
 			for (int i = 0; i < pairs.size(); i++) {
 				List<CNFSentence> pair = pairs.get(i);
@@ -110,7 +109,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 					buff.append(System.getProperty("line.separator"));
 					printLog(buff.toString());
 
-					if (resolvents.contains(new Symbol("EMPTY_CLAUSE", true))) {
+					if (isEmptyClause(resolvents)) {
 						return true;
 					}
 					newClauses = SetUtils.union(newClauses, resolvents);
@@ -120,9 +119,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 					.size()) {// subset test
 				return false;
 			}
-			// clauses = SetUtils.union(clauses, newClauses);
 			kb = SetUtils.union(kb, newClauses);
-			// clauses = filterOutClausesWithTwoComplementaryLiterals(clauses);
 			k++;
 		}
 	}
@@ -191,7 +188,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 
 		CNFSentence cnf = new CNFSentence();
 		if (sentences.size() == 0) {
-			cnf.addSymbol(new Symbol("EMPTY_CLAUSE", true));
+			cnf.addSymbol(new Symbol(EMPTY_STRING, true));
 			return cnf; // == empty clause
 		} else {
 			for (Symbol s : sentences) {
@@ -219,6 +216,22 @@ public class CNFResolutionTask extends IEntailmentTask {
 			}
 		}
 		return filtered;
+	}
+
+	private boolean isEmptyClause(Set<CNFSentence> resolvents) {
+		Iterator<CNFSentence> iter = resolvents.iterator();
+		while (iter.hasNext()) {
+			CNFSentence s = iter.next();
+			Iterator<Symbol> symIter = s.getSymbols().iterator();
+			while (symIter.hasNext()) {
+				Symbol c = symIter.next();
+				if (c.getValue().equals(EMPTY_STRING)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 }
