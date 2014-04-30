@@ -29,6 +29,11 @@ public class CNFResolutionTask extends IEntailmentTask {
 	
 	private static final String EMPTY_STRING = "Empty";
 
+	/**
+	 * 
+	 * @param logsWriter
+	 * @param resultsFileWriter
+	 */
 	public CNFResolutionTask(FileWriter logsWriter, FileWriter resultsFileWriter) {
 		super(logsWriter, resultsFileWriter);
 	}
@@ -115,7 +120,7 @@ public class CNFResolutionTask extends IEntailmentTask {
 					newClauses = SetUtils.union(newClauses, resolvents);
 				}
 			}
-			if (SetUtils.intersection(newClauses, kb/* clauses */).size() == newClauses
+			if (SetUtils.intersection(newClauses, kb).size() == newClauses
 					.size()) {// subset test
 				return false;
 			}
@@ -143,6 +148,11 @@ public class CNFResolutionTask extends IEntailmentTask {
 		return resolvents;
 	}
 
+	/**
+	 * 
+	 * @param clausesList
+	 * @return
+	 */
 	private List<List<CNFSentence>> getCombinationPairs(
 			List<CNFSentence> clausesList) {
 		List<List<CNFSentence>> pairs = new ArrayList<List<CNFSentence>>();
@@ -152,7 +162,6 @@ public class CNFResolutionTask extends IEntailmentTask {
 				CNFSentence first = clausesList.get(i);
 				CNFSentence second = clausesList.get(j);
 
-				// if (!isSame(first, second)) {
 				if (!first.isSame(second)) {
 					pair.add(first);
 					pair.add(second);
@@ -163,6 +172,12 @@ public class CNFResolutionTask extends IEntailmentTask {
 		return pairs;
 	}
 
+	/**
+	 * 
+	 * @param cs
+	 * @param toRemove
+	 * @return
+	 */
 	private CNFSentence createResolventClause(ClauseSymbols cs, Symbol toRemove) {
 		List<Symbol> positiveSymbols = new ArrayList<Symbol>(SetUtils.union(
 				cs.getClause1PositiveSymbols(), cs.getClause2PositiveSymbols()));
@@ -205,6 +220,11 @@ public class CNFResolutionTask extends IEntailmentTask {
 
 	}
 
+	/**
+	 * 
+	 * @param clauses
+	 * @return
+	 */
 	private Set<CNFSentence> filterOutClausesWithTwoComplementaryLiterals(
 			Set<CNFSentence> clauses) {
 		Set<CNFSentence> filtered = new LinkedHashSet<CNFSentence>();
@@ -218,6 +238,11 @@ public class CNFResolutionTask extends IEntailmentTask {
 		return filtered;
 	}
 
+	/**
+	 * 
+	 * @param resolvents
+	 * @return
+	 */
 	private boolean isEmptyClause(Set<CNFSentence> resolvents) {
 		Iterator<CNFSentence> iter = resolvents.iterator();
 		while (iter.hasNext()) {
